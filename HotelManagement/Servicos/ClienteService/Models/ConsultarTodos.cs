@@ -4,7 +4,7 @@ using System.Text;
 
 namespace HotelManagement.Servicos.ClienteService.Models
 {
-    class ModeloLista
+    class ConsultarTodos
     {
         public string NomeCompleto { get; set; }
         public string Telefone { get; set; }

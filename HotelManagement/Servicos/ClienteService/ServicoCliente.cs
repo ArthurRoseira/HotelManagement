@@ -9,13 +9,8 @@ namespace HotelManagement.Servicos.ClienteService
 {
     class ServicoCliente
     {
-        //Conectar Com Banco
-        // Cadastrar Novo Cliente
-        // Atualizar dados Cliente
-        //public string DadosLocal = "C:\\Users\\arthur.santos\\Documents\\Curso C# Basico\\HotelManagement\\HotelManagement\\Dados";
-        //public string TabelaNome = "Clientes";
 
-        public static void CadastrarNovo(ModeloCadastro cliente)
+        public static void CadastrarNovoCliente(CadastrarNovo cliente)
         {
             cliente.Validar();
             var novoCliente = new Cliente() {
@@ -38,12 +33,14 @@ namespace HotelManagement.Servicos.ClienteService
             Data.ListaClientes.Add(novoCliente);
         }
 
-        public static List<ModeloLista> Buscar()
+        public static List<ConsultarTodos> BuscarClientes()
         {
-            var clientes = new List<ModeloLista>();
+            // Buscar todos os Clientes e apresentar 
+            // Para o usuario
+            var clientes = new List<ConsultarTodos>();
             Data.ListaClientes.ForEach(c =>
             {
-                var cliente = new ModeloLista()
+                var cliente = new ConsultarTodos()
                 {
                     NomeCompleto = c.NomeCompleto,
                     Telefone = c.Telefone
@@ -53,6 +50,21 @@ namespace HotelManagement.Servicos.ClienteService
             return clientes;
         }
 
+
+        public static ConsultaCPF ObterPorCPF(string cpf)
+        {
+            var clienteObtido = new ConsultaCPF();
+            var cliente = Dados.Data.ListaClientes.Find(c => c.CPF == cpf);
+            if(cliente != null)
+            {
+                clienteObtido.CPF = cliente.CPF;
+                clienteObtido.NomeCompleto = cliente.NomeCompleto;
+                clienteObtido.DataNascimento = cliente.DataNascimento;
+                clienteObtido.Email = cliente.Email;
+                clienteObtido.Telefone = cliente.Telefone;
+            }
+            return clienteObtido;
+        }
 
 
     }

@@ -5,7 +5,7 @@ using HotelManagement.Servicos.ClienteService;
 
 namespace HotelManagement.Servicos.ClienteService.Models
 {
-    public class ModeloCadastro
+    public class CadastrarNovo
     {
 
         public string CPF { get; set; }

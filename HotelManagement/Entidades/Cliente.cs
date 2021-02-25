@@ -12,5 +12,12 @@ namespace HotelManagement.Entidades
         public DateTime DataNascimento{ get; set; }
         public string Email { get; set; }
         public DateTime DataCriacao { get; set; }
+
+        public override string ToString()
+        {
+            return ($"{CPF},{NomeCompleto},{Telefone},{DataNascimento},{Email},{DataCriacao}");
+        }
+
+
     }
 }
