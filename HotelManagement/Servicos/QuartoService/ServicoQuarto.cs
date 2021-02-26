@@ -8,6 +8,21 @@ namespace HotelManagement.Servicos.QuartoService
     class ServicoQuarto
     {
 
+        public static void AtualizarSituacaoQuartos()
+        {
+            Dados.Data.ListaQuartos.ForEach(q =>
+            {
+                Dados.Data.ListaReservas.ForEach(r =>
+                {
+                    if(q.QuartoId == r.QuartoId && (DateTime.Now>r.CheckIn) && (DateTime.Now<r.CheckOut))
+                    {
+                        q.SituacaoId = Dados.Data.ListaSituacaoQuartos.Find(s =>  s.Descricao == "Ocupado").SituacaoId;
+                    }
+                });
+            });
+        }
+
+
         public static List<ConsultarStatus> BuscarPorStatus(string situacao, int tipo)
         {
             List<ConsultarStatus> listaQuartos = new List<ConsultarStatus>(); 

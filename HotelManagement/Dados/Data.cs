@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using HotelManagement.Entidades;
 
 
@@ -21,10 +22,16 @@ namespace HotelManagement.Dados
         {
             CarregarDadosCliente();
             CarregarDadosQuartos();
+            CarregarDadosReservas();
             CarregarDadosSituacaoQuartos();
             CarregarDadosTipoQuarto();
         }
 
+        public static void SalvarDados()
+        {
+            SalvarDadosClientes();
+            SalvarDadosReservas();
+        }
 
 
         public static void CarregarDadosCliente()
@@ -40,17 +47,20 @@ namespace HotelManagement.Dados
                         while (!reader.EndOfStream)
                         {
                             var linhas = reader.ReadLine();
-                            var values = linhas.Split(',');
-                            var cliente = new Cliente()
+                            if (linhas != null)
                             {
-                                CPF = values[0],
-                                NomeCompleto = values[1],
-                                Telefone = values[2],
-                                DataNascimento = DateTime.Parse(values[3]),
-                                Email = values[4],
-                                DataCriacao = DateTime.Parse(values[5])
-                            };
-                            ListaClientes.Add(cliente);
+                                var values = linhas.Split(',');
+                                var cliente = new Cliente()
+                                {
+                                    CPF = values[0],
+                                    NomeCompleto = values[1],
+                                    Telefone = values[2],
+                                    DataNascimento = DateTime.Parse(values[3]),
+                                    Email = values[4],
+                                    DataCriacao = DateTime.Parse(values[5])
+                                };
+                                ListaClientes.Add(cliente);
+                            }
                         }
                     }
                 }
@@ -71,20 +81,62 @@ namespace HotelManagement.Dados
                         while (!reader.EndOfStream)
                         {
                             var linhas = reader.ReadLine();
-                            var values = linhas.Split(',');
-                            var quarto = new Quarto()
+                            if (linhas != null)
                             {
-                                QuartoId = int.Parse(values[0]),
-                                SituacaoId = int.Parse(values[1]),
-                                TipoId = int.Parse(values[2])
-                            };
-                            ListaQuartos.Add(quarto);
+                                var values = linhas.Split(',');
+                                var quarto = new Quarto()
+                                {
+                                    QuartoId = int.Parse(values[0]),
+                                    SituacaoId = int.Parse(values[2]),
+                                    TipoId = int.Parse(values[1])
+                                };
+                                ListaQuartos.Add(quarto);
+                            }
                         }
                     }
                 }
 
             }
 
+        }
+        public static void CarregarDadosReservas()
+        {
+            string[] arquivos = Directory.GetFiles(DadosLocal, "*.csv", SearchOption.TopDirectoryOnly);
+            for (int i = 0; i < arquivos.Length; i++)
+            {
+                if (arquivos[i].Contains("Reserva"))
+                {
+                    using (var reader = new StreamReader(arquivos[i]))
+                    {
+                        string Cabecalho = reader.ReadLine();
+                        while (!reader.EndOfStream)
+                        {
+                            var linhas = reader.ReadLine();
+                            if (linhas != null)
+                            {
+                                var values = linhas.Split(';');
+                                var reserva = new Reserva()
+                                {
+                                    ReservaId = values[0],
+                                    DataCriacao = DateTime.Parse(values[1]),
+                                    CheckIn = DateTime.Parse(values[2]),
+                                    CheckInStatus = values[3],
+                                    CheckOut = DateTime.Parse(values[4]),
+                                    CheckOutStatus = values[5],
+                                    CPF = values[6],
+                                    HospedesJSON = values[7],
+                                    QuartoId = int.Parse(values[8]),
+                                    ValorDiarias = double.Parse(values[9]),
+                                    TaxasConsumo = double.Parse(values[10]),
+                                    ValorFinal = double.Parse(values[11])
+                                };
+                                ListaReservas.Add(reserva);
+                            }
+                        }
+                    }
+                }
+
+            }
         }
 
         public static void CarregarDadosSituacaoQuartos()
@@ -100,13 +152,16 @@ namespace HotelManagement.Dados
                         while (!reader.EndOfStream)
                         {
                             var linhas = reader.ReadLine();
-                            var values = linhas.Split(',');
-                            var situacaoQuarto = new SituacaoQuarto
+                            if (linhas != null)
                             {
-                                SituacaoId = int.Parse(values[0]),
-                                Descricao = values[1],
-                            };
-                            ListaSituacaoQuartos.Add(situacaoQuarto);
+                                var values = linhas.Split(',');
+                                var situacaoQuarto = new SituacaoQuarto
+                                {
+                                    SituacaoId = int.Parse(values[0]),
+                                    Descricao = values[1],
+                                };
+                                ListaSituacaoQuartos.Add(situacaoQuarto);
+                            }
                         }
                     }
                 }
@@ -125,17 +180,20 @@ namespace HotelManagement.Dados
                     using (var reader = new StreamReader(arquivos[i]))
                     {
                         string Cabecalho = reader.ReadLine();
-                        while (!reader.EndOfStream)
+                        while (!reader.EndOfStream )
                         {
                             var linhas = reader.ReadLine();
-                            var values = linhas.Split(',');
-                            var tipoQuarto = new TipoQuarto()
+                            if (linhas != null)
                             {
-                                TipoId = int.Parse(values[0]),
-                                Descricao = values[1],
-                                Valor = double.Parse(values[2])
-                            };
-                            ListaTipoQuarto.Add(tipoQuarto);
+                                var values = linhas.Split(',');
+                                var tipoQuarto = new TipoQuarto()
+                                {
+                                    TipoId = int.Parse(values[0]),
+                                    Descricao = values[1],
+                                    Valor = double.Parse(values[2])
+                                };
+                                ListaTipoQuarto.Add(tipoQuarto);
+                            }
                         }
                     }
                 }
@@ -163,25 +221,38 @@ namespace HotelManagement.Dados
                             cpfExistentes.Add(valores[0]);
                         }
                     }
-
-
-                }
-                using (StreamWriter sw = File.AppendText(arquivos[i]))
-                {
-                    sw.WriteLine();
-                    ListaClientes.ForEach(cliente =>
-                {
-                    var checarCpf = cpfExistentes.Find(cpf => cpf == cliente.CPF);
-                    if (checarCpf == null)
+                    using (StreamWriter sw = File.AppendText(arquivos[i]))
                     {
-                        sw.WriteLine(cliente.ToString());
-                    }
-                });
-                };
+                        ListaClientes.ForEach(cliente =>
+                    {
+                        var checarCpf = cpfExistentes.Find(cpf => cpf == cliente.CPF);
+                        if (checarCpf == null)
+                        {
+                            sw.WriteLine();
+                            sw.Write(cliente.ToString());
+                        }
+                    });
+                    };
+                }
             }
         }
 
-       
+        public static void SalvarDadosReservas()
+        {
+            var reservasExistentes = new List<string>();
+            string[] arquivos = Directory.GetFiles(DadosLocal, "*.csv", SearchOption.TopDirectoryOnly);
+            for (int i = 0; i < arquivos.Length; i++)
+            {
+                if (arquivos[i].Contains("Reserva"))
+                {
+                    List<string> lista = new List<string>();
+                    ListaReservas.ForEach(r => lista.Add(r.ToString()));
+                    File.WriteAllLines(arquivos[i],lista);
+                }
+            }
+        }
+
+
 
     }
 }

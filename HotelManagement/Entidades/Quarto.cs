@@ -9,5 +9,6 @@ namespace HotelManagement.Entidades
         public int QuartoId { get; set; }
         public int TipoId { get; set; }
         public int SituacaoId { get; set; }
+
     }
 }

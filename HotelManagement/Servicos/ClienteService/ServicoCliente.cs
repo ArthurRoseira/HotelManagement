@@ -10,27 +10,36 @@ namespace HotelManagement.Servicos.ClienteService
     class ServicoCliente
     {
 
-        public static void CadastrarNovoCliente(CadastrarNovo cliente)
+        public static bool CadastrarNovoCliente(CadastrarNovo cliente)
         {
-            cliente.Validar();
-            var novoCliente = new Cliente() {
-                CPF = cliente.CPF,
-                NomeCompleto = cliente.NomeCompleto,
-                DataNascimento = cliente.DataNascimento,
-                Email = cliente.Email,
-                Telefone = cliente.Telefone,
-                DataCriacao = DateTime.Now
-            };
+            try
+            {
+                cliente.Validar();
+                var novoCliente = new Cliente()
+                {
+                    CPF = cliente.CPF,
+                    NomeCompleto = cliente.NomeCompleto,
+                    DataNascimento = cliente.DataNascimento,
+                    Email = cliente.Email,
+                    Telefone = cliente.Telefone,
+                    DataCriacao = DateTime.Now
+                };
 
-            if (Data.ListaClientes.Any(c => c.CPF == cliente.CPF))
-                throw new ClienteExceptions("Este Cliente Ja Existe");
+                if (Data.ListaClientes.Any(c => c.CPF == cliente.CPF))
+                    throw new ClienteExceptions("Este Cliente Ja Existe");
 
-            novoCliente.CPF = cliente.CPF;
-            novoCliente.NomeCompleto = cliente.NomeCompleto;
-            novoCliente.DataNascimento = cliente.DataNascimento;
-            novoCliente.Email = cliente.Email;
-            novoCliente.Telefone = cliente.Telefone;
-            Data.ListaClientes.Add(novoCliente);
+                novoCliente.CPF = cliente.CPF;
+                novoCliente.NomeCompleto = cliente.NomeCompleto;
+                novoCliente.DataNascimento = cliente.DataNascimento;
+                novoCliente.Email = cliente.Email;
+                novoCliente.Telefone = cliente.Telefone;
+                Data.ListaClientes.Add(novoCliente);
+                return true;
+            }catch(ClienteExceptions e)
+            {
+                Console.WriteLine(e.Message);
+                return false;
+            }
         }
 
         public static List<ConsultarTodos> BuscarClientes()

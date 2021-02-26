@@ -24,6 +24,7 @@ namespace HotelManagement.Servicos.ReservaService.Models
             Hospedes.ForEach(hospede=>
             {
                 if (hospede.CPF.Length < 11)
+                    
                     throw new ReservaExceptions("CPF Invalido");
             });
         }
