@@ -37,7 +37,7 @@ namespace HotelManagement.Servicos.ReservaService
         public static double ValorDiarias(int tipoQuarto ,DateTime checkIn, DateTime checkOut)
         {
 
-            return (checkIn-checkOut).TotalDays * Dados.Data.ListaTipoQuarto.Find(tipo => tipo.TipoId == tipoQuarto).Valor;
+            return (checkOut-checkIn).TotalDays * Dados.Data.ListaTipoQuarto.Find(tipo => tipo.TipoId == tipoQuarto).Valor;
         }
 
 

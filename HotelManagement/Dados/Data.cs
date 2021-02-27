@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
 using HotelManagement.Entidades;
 
 
@@ -15,9 +16,8 @@ namespace HotelManagement.Dados
         public static List<Quarto> ListaQuartos = new List<Quarto>();
         public static List<SituacaoQuarto> ListaSituacaoQuartos = new List<SituacaoQuarto>();
         public static List<TipoQuarto> ListaTipoQuarto = new List<TipoQuarto>();
-        public static string DadosLocal = "C:\\Users\\arthur.santos\\Documents\\Curso C# Basico\\HotelManagement\\HotelManagement\\Dados";
-
-
+        //public static string DadosLocal = "C:\\Users\\arthur.santos\\Documents\\Curso C# Basico\\HotelManagement\\HotelManagement\\Dados";
+        public static string DadosLocal = Environment.CurrentDirectory.Replace("bin\\Debug\\netcoreapp3.1", "Dados");
         public static void CarregarDados()
         {
             CarregarDadosCliente();
@@ -211,28 +211,10 @@ namespace HotelManagement.Dados
             {
                 if (arquivos[i].Contains("Clientes"))
                 {
-                    using (var reader = new StreamReader(arquivos[i]))
-                    {
-                        string Cabecalho = reader.ReadLine();
-                        while (!reader.EndOfStream)
-                        {
-                            var linhas = reader.ReadLine();
-                            var valores = linhas.Split(',');
-                            cpfExistentes.Add(valores[0]);
-                        }
-                    }
-                    using (StreamWriter sw = File.AppendText(arquivos[i]))
-                    {
-                        ListaClientes.ForEach(cliente =>
-                    {
-                        var checarCpf = cpfExistentes.Find(cpf => cpf == cliente.CPF);
-                        if (checarCpf == null)
-                        {
-                            sw.WriteLine();
-                            sw.Write(cliente.ToString());
-                        }
-                    });
-                    };
+                    List<string> lista = new List<string>();
+                    lista.Add("CPF,NomeCompleto,Telefone,DataNascimento,Email,DataCriacao");
+                    ListaClientes.ForEach(c => lista.Add(c.ToString()));
+                    File.WriteAllLines(arquivos[i], lista);
                 }
             }
         }
@@ -246,6 +228,7 @@ namespace HotelManagement.Dados
                 if (arquivos[i].Contains("Reserva"))
                 {
                     List<string> lista = new List<string>();
+                    lista.Add("ReservaId;DataCriacao;CheckIn;CheckInStatus;CheckOut;CheckOutStatus;CPF;HospedesJSON;QuartoId;ValoresDiarias;TaxasConsumo;ValorFinal");
                     ListaReservas.ForEach(r => lista.Add(r.ToString()));
                     File.WriteAllLines(arquivos[i],lista);
                 }

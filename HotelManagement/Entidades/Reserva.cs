@@ -61,7 +61,7 @@ namespace HotelManagement.Entidades
 
         public override string ToString()
         {
-            return string.Join(";", string.Join(";", ReservaId, DataCriacao.ToString(), CheckIn, CheckInStatus ,CheckOut, CheckOutStatus,HospedesJSON, QuartoId, ValorDiarias.ToString(), TaxasConsumo.ToString(), ValorFinal.ToString()));
+            return string.Join(";", string.Join(";", ReservaId, DataCriacao.ToString(), CheckIn, CheckInStatus ,CheckOut, CheckOutStatus,CPF,HospedesJSON, QuartoId, ValorDiarias.ToString("0.00"), TaxasConsumo.ToString("0.00"), ValorFinal.ToString("0.00")));
         }
 
 
