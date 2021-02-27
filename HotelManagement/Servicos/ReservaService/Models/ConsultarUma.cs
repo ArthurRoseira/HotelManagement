@@ -8,7 +8,9 @@ namespace HotelManagement.Servicos.ReservaService.Models
     {
         public string ReservaId { get; set; }
         public DateTime CheckIn { get; set; }
+        public string CheckInStatus { get; set; }
         public DateTime CheckOut { get; set; }
+        public string CheckOutStatus { get; set; }
         public string CPF { get; set; }
         public List<Hospede> Hospedes { get; set; }
         public int QuartoId { get; set; }

@@ -91,7 +91,9 @@ namespace HotelManagement.Servicos.ReservaService
             {
                 reserva.CPF = r.CPF;
                 reserva.CheckIn = r.CheckIn;
+                reserva.CheckInStatus = r.CheckInStatus;
                 reserva.CheckOut = r.CheckOut;
+                reserva.CheckOutStatus = r.CheckOutStatus;
                 reserva.QuartoId = r.QuartoId;
                 //Hospedes = 
                 reserva.ValorDiarias = r.ValorDiarias;

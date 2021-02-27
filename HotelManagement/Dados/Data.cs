@@ -4,7 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 using HotelManagement.Entidades;
-
+using System.Globalization;
 
 
 namespace HotelManagement.Dados
@@ -126,9 +126,9 @@ namespace HotelManagement.Dados
                                     CPF = values[6],
                                     HospedesJSON = values[7],
                                     QuartoId = int.Parse(values[8]),
-                                    ValorDiarias = double.Parse(values[9]),
-                                    TaxasConsumo = double.Parse(values[10]),
-                                    ValorFinal = double.Parse(values[11])
+                                    ValorDiarias = double.Parse(values[9], CultureInfo.InvariantCulture),
+                                    TaxasConsumo = double.Parse(values[10], CultureInfo.InvariantCulture),
+                                    ValorFinal = double.Parse(values[11], CultureInfo.InvariantCulture)
                                 };
                                 ListaReservas.Add(reserva);
                             }
@@ -190,7 +190,7 @@ namespace HotelManagement.Dados
                                 {
                                     TipoId = int.Parse(values[0]),
                                     Descricao = values[1],
-                                    Valor = double.Parse(values[2])
+                                    Valor = double.Parse(values[2], CultureInfo.InvariantCulture)
                                 };
                                 ListaTipoQuarto.Add(tipoQuarto);
                             }

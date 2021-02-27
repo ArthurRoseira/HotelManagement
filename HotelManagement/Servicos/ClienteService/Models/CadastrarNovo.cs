@@ -23,18 +23,10 @@ namespace HotelManagement.Servicos.ClienteService.Models
                 throw new ClienteExceptions("Nome não esta Completo");
             if (Telefone.Length < 11)
                 throw new ClienteExceptions("Numero de Telefone Invalido");
-            if(DataNascimento>DateTime.Now && Idade(DataNascimento)<18)
+            if(DataNascimento>DateTime.Now && ClienteService.ServicoCliente.Idade(DataNascimento)<18)
                 throw new ClienteExceptions("Data de Nascimento Invalida");
         }
 
-        public int Idade(DateTime dataNascimento)
-        {
-            int idade = DateTime.Now.Year - dataNascimento.Year;
-            if (dataNascimento.Month > DateTime.Now.Month || (dataNascimento.Month == DateTime.Now.Month && dataNascimento.Day > DateTime.Now.Day))
-                { idade -= 1; }
-
-            return idade;
-        }
 
 
     }

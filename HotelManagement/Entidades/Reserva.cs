@@ -2,7 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
-
+using System.Globalization;
 using HotelManagement.Servicos.ReservaService.Models;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -61,7 +61,7 @@ namespace HotelManagement.Entidades
 
         public override string ToString()
         {
-            return string.Join(";", string.Join(";", ReservaId, DataCriacao.ToString(), CheckIn, CheckInStatus ,CheckOut, CheckOutStatus,CPF,HospedesJSON, QuartoId, ValorDiarias.ToString("0.00"), TaxasConsumo.ToString("0.00"), ValorFinal.ToString("0.00")));
+            return string.Join(";", string.Join(";", ReservaId, DataCriacao.ToString(), CheckIn, CheckInStatus ,CheckOut, CheckOutStatus,CPF,HospedesJSON, QuartoId, ValorDiarias.ToString("0.00",CultureInfo.InvariantCulture), TaxasConsumo.ToString("0.00", CultureInfo.InvariantCulture), ValorFinal.ToString("0.00", CultureInfo.InvariantCulture)));
         }
 
 

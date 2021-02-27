@@ -75,6 +75,13 @@ namespace HotelManagement.Servicos.ClienteService
             return clienteObtido;
         }
 
+        public static int Idade(DateTime dataNascimento)
+        {
+            int idade = DateTime.Now.Year - dataNascimento.Year;
+            if (dataNascimento.Month > DateTime.Now.Month || (dataNascimento.Month == DateTime.Now.Month && dataNascimento.Day > DateTime.Now.Day))
+            { idade -= 1; }
 
+            return idade;
+        }
     }
 }

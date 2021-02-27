@@ -6,6 +6,7 @@ using HotelManagement.Servicos.ReservaService;
 using HotelManagement.Servicos.ReservaService.Models;
 using HotelManagement.Servicos.QuartoService;
 using HotelManagement.Servicos.ClienteService.Models;
+using System.Reflection;
 
 namespace HotelManagement
 {
@@ -16,13 +17,15 @@ namespace HotelManagement
             Console.Clear();
             Console.WriteLine("----------- HOTEL BONSOIR - MANAGEMENT -----------");
             Console.WriteLine();
-            Console.WriteLine("Selecione a Operação Desejada:");
+            Console.WriteLine("MENU PRINCIPAL:");
+            Console.WriteLine();
             Console.WriteLine("1 - Iniciar Nova Reserva;");
             Console.WriteLine("2 - Alterar Dados de Reserva");
             Console.WriteLine("3 - Consultar Clientes;");
             Console.WriteLine("4 - Consultar todas as Reservas;");
             Console.WriteLine("5 - Encerrar");
             Console.WriteLine();
+            Console.Write("Selecione a Operação Desejada: ");
             switch (Console.ReadLine())
             {
                 case "1":
@@ -32,7 +35,7 @@ namespace HotelManagement
                     PrintTelaConsultarReservas();
                     return true;
                 case "3":
-                    //consultar clientes
+                    PrintTelaConsultarCliente();
                     return true;
                 case "4":
                     PrintTelaConsultarTodasReservas();
@@ -44,6 +47,35 @@ namespace HotelManagement
                     return true;
             }
         }
+
+        public static void PrintTelaConsultarCliente()
+        {
+            var statusPesquisa = false;
+            while (statusPesquisa == false)
+            {
+                Console.Clear();
+                Console.WriteLine("----------- HOTEL BONSOIR - MANAGEMENT -----------");
+                Console.WriteLine();
+                Console.Write("Digite Um CPF: ");
+                var cpf = Console.ReadLine();
+                if (Dados.Data.ListaClientes.Find(c => c.CPF == cpf) != null)
+                {
+                    PrintTelaUnicoCliente(cpf);
+                    statusPesquisa = true;
+                    Console.WriteLine("-------------------------------------------------------");
+                    Console.WriteLine("Pressione Enter para Continuar");
+                    Console.ReadLine();
+                }
+                else
+                {
+                    Console.WriteLine("-------------------------------------------------------");
+                    Console.WriteLine("Numero de CPR Inválido");
+                    Console.WriteLine("Pressione Enter para Continuar");
+                    Console.ReadLine();
+                }
+            }
+        }
+
 
         public static void PrintTelaConsultarReservas()
         {
@@ -73,112 +105,133 @@ namespace HotelManagement
 
 
 
-        public static void PrintTelaNovaReserva()
+        public static void PrintTelaNovaReserva(string message = "")
         {
-            var cliente = new ConsultaCPF();
-
-            Console.Clear();
-            Console.WriteLine("----------- HOTEL BONSOIR - MANAGEMENT -----------");
-            Console.WriteLine();
-            Console.WriteLine("Realizar Nova Reserva - Selecionar Cliente:");
-            Console.WriteLine("Insira um CPF Válido:");
-            string cpf = Console.ReadLine();
-            cliente = ServicoCliente.ObterPorCPF(cpf);
-            if (cliente.CPF != null)
+            try
             {
+                if (message != "")
+                {
+                    Console.WriteLine(message);
+                }
+
+                var cliente = new ConsultaCPF();
+
                 Console.Clear();
                 Console.WriteLine("----------- HOTEL BONSOIR - MANAGEMENT -----------");
                 Console.WriteLine();
-                Console.WriteLine("Cliente Ja Cadastrado:");
-                Console.WriteLine($"CPF: {cliente.CPF}");
-                Console.WriteLine($"Nome Completo: {cliente.NomeCompleto}");
-                //TODO: Modificar Para Idade
-                Console.WriteLine($"Data De Nacimento: {cliente.DataNascimento}");
-                Console.WriteLine($"Telefone: {cliente.Telefone}");
-                Console.WriteLine($"Email: {cliente.Email}");
+                Console.WriteLine("Realizar Nova Reserva - Selecionar Cliente:");
+                Console.WriteLine("Insira um CPF Válido:");
+                string cpf = Console.ReadLine();
+                cliente = ServicoCliente.ObterPorCPF(cpf);
+                if (cliente.CPF != null)
+                {
+                    Console.Clear();
+                    Console.WriteLine("----------- HOTEL BONSOIR - MANAGEMENT -----------");
+                    Console.WriteLine();
+                    Console.WriteLine("Cliente Ja Cadastrado:");
+                    PrintTelaUnicoCliente(cliente.CPF);
+                    Console.WriteLine();
+                    Console.WriteLine("Pressione Enter Para Continuar");
+                    Console.ReadLine();
+                }
+                else
+                {
+                    bool cadastroStatus = false;
+                    while (!cadastroStatus)
+                    {
+                        Console.WriteLine("Redirecionando Para Novo Cadastro");
+                        System.Threading.Thread.Sleep(2000);
+                        cadastroStatus = PrintTelaCadastroCliente(cpf);
+                    }
+
+                }
+                Console.Clear();
+                Console.WriteLine("----------- HOTEL BONSOIR - MANAGEMENT -----------");
                 Console.WriteLine();
+                Console.WriteLine("Realizar Nova Reserva - Selecionar Quarto:");
+                var novaReserva = new CadastrarNova();
+                novaReserva.CPF = cpf;
+                Console.WriteLine("Selecione Um quarto Tipo de Quarto: (1 - Casal/2 - Simples/3 - Duplo)");
+                PrintTelaQuartos("Livre", int.Parse(Console.ReadLine()));
+                Console.WriteLine("----------------------------------");
+                Console.WriteLine();
+                Console.WriteLine("Digite o Número do Quarto Desejado: ");
+                novaReserva.QuartoId = int.Parse(Console.ReadLine());
+                Console.Clear();
+                Console.WriteLine("----------- HOTEL BONSOIR - MANAGEMENT -----------");
+                Console.WriteLine();
+                Console.WriteLine("Data de CheckIn (dd/MM/yyyy): ");
+                novaReserva.CheckIn = DateTime.Parse(Console.ReadLine());
+                Console.WriteLine("Data de CheckOut (dd/MM/yyyy): ");
+                novaReserva.CheckOut = DateTime.Parse(Console.ReadLine());
+                Console.WriteLine("Digite o Numero de Hospedes: ");
+                int numHospedes = int.Parse(Console.ReadLine());
+                List<Hospede> listaAux = new List<Hospede>();
+                for (int i = 0; i < numHospedes; i++)
+                {
+                    var hospede = new Hospede();
+                    Console.WriteLine($"Digite o Numero do CPF do Hospede {i}: ");
+                    hospede.CPF = Console.ReadLine();
+                    listaAux.Add(hospede);
+                }
+                novaReserva.Hospedes = listaAux;
+                Console.WriteLine();
+                Console.WriteLine("Pressione Enter Para Continuar");
+                ServicoReserva.CadastrarNovaReserva(novaReserva);
+                Console.Clear();
+                Console.WriteLine("----------- HOTEL BONSOIR - MANAGEMENT -----------");
+                Console.WriteLine();
+                PrintTelaReserva(novaReserva);
                 Console.WriteLine("Pressione Enter Para Continuar");
                 Console.ReadLine();
             }
-            else
+            catch(ReservaExceptions e)
             {
-                bool cadastroStatus = false;
-                while (!cadastroStatus)
-                {
-                    System.Threading.Thread.Sleep(1000);
-                    Console.WriteLine("CPF Não encontrado Redirecionando Para Novo Cadastro");
-                    cadastroStatus = PrintTelaCadastroCliente(cpf);
-                }
-
+                PrintTelaNovaReserva(e.Message);
             }
-            Console.Clear();
-            Console.WriteLine("----------- HOTEL BONSOIR - MANAGEMENT -----------");
-            Console.WriteLine();
-            Console.WriteLine("Realizar Nova Reserva - Selecionar Quarto:");
-            var novaReserva = new CadastrarNova();
-            novaReserva.CPF = cpf;
-            Console.WriteLine("Selecione Um quarto Tipo de Quarto: ");
-            PrintTelaQuartos("Livre", int.Parse(Console.ReadLine()));
-            Console.WriteLine("Digite o Número do Quarto Desejado: ");
-            novaReserva.QuartoId = int.Parse(Console.ReadLine());
-            Console.WriteLine("Data de CheckIn (dd/MM/yyyy): ");
-            novaReserva.CheckIn = DateTime.Parse(Console.ReadLine());
-            Console.WriteLine("Data de CheckOut (dd/MM/yyyy): ");
-            novaReserva.CheckOut = DateTime.Parse(Console.ReadLine());
-            Console.WriteLine("Digite o Numero de Hospedes: ");
-            int numHospedes = int.Parse(Console.ReadLine());
-            List<Hospede> listaAux = new List<Hospede>();
-            for (int i = 0; i < numHospedes; i++)
-            {
-                var hospede = new Hospede();
-                Console.WriteLine($"Digite o Numero do CPF do Hospede {i}: ");
-                hospede.CPF = Console.ReadLine();
-                listaAux.Add(hospede);
-            }
-            novaReserva.Hospedes = listaAux;
-            Console.WriteLine();
-            Console.WriteLine("Pressione Enter Para Continuar");
-            ServicoReserva.CadastrarNovaReserva(novaReserva);
-            Console.Clear();
-            Console.WriteLine("----------- HOTEL BONSOIR - MANAGEMENT -----------");
-            Console.WriteLine();
-            PrintTelaReserva(novaReserva);
-            Console.WriteLine("Pressione Enter Para Continuar");
-            Console.ReadLine();
         }
 
         public static bool PrintTelaCadastroCliente(string cpf)
         {
-            var novoCliente = new CadastrarNovo();
-            novoCliente.CPF = cpf;
-            Console.Clear();
-            Console.WriteLine("----------- HOTEL BONSOIR - MANAGEMENT -----------");
-            Console.WriteLine();
-            Console.WriteLine($"CPF: {cpf}");
-            Console.WriteLine("Nome Completo: ");
-            novoCliente.NomeCompleto = Console.ReadLine();
-            Console.WriteLine("Data de Nascimento (dd/MM/yyyy): ");
-            novoCliente.DataNascimento = DateTime.Parse(Console.ReadLine());
-            Console.WriteLine("Telefone: ");
-            novoCliente.Telefone = Console.ReadLine();
-            Console.WriteLine("Email: ");
-            novoCliente.Email = Console.ReadLine();
-            return ServicoCliente.CadastrarNovoCliente(novoCliente);
+            try
+            {
+                var novoCliente = new CadastrarNovo();
+                novoCliente.CPF = cpf;
+                Console.Clear();
+                Console.WriteLine("----------- HOTEL BONSOIR - MANAGEMENT -----------");
+                Console.WriteLine();
+                Console.WriteLine($"CPF: {cpf}");
+                Console.WriteLine("Nome Completo: ");
+                novoCliente.NomeCompleto = Console.ReadLine();
+                Console.WriteLine("Data de Nascimento (dd/MM/yyyy): ");
+                novoCliente.DataNascimento = DateTime.Parse(Console.ReadLine());
+                Console.WriteLine("Telefone: ");
+                novoCliente.Telefone = Console.ReadLine();
+                Console.WriteLine("Email: ");
+                novoCliente.Email = Console.ReadLine();
+                return ServicoCliente.CadastrarNovoCliente(novoCliente);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message);
+                Console.WriteLine("Dados Incorretos Inseridos Pressione Enter para repetir a operação:");
+                Console.ReadLine();
+                return false;
+            }
+                
         }
 
         public static void PrintTelaQuartos(string status, int tipo)
         {
-            //Console.Clear();
-            //Console.WriteLine("----------- HOTEL BONSOIR - MANAGEMENT -----------");
-            //Console.WriteLine();
+            Console.Clear();
+            Console.WriteLine("----------- HOTEL BONSOIR - MANAGEMENT -----------");
+            Console.WriteLine();
             Console.WriteLine("Quartos Disponivéis:");
             var listaQuartos = ServicoQuarto.BuscarPorStatus(status, tipo);
             listaQuartos.ForEach(q =>
             {
                 Console.WriteLine($"{q.QuartoId}, Situação:{ServicoQuarto.ObterSituação(q.SituacaoId).Descricao}");
             });
-            Console.WriteLine("Pressione Enter Para Retornar a tela Anterior");
-            Console.ReadLine();
         }
 
         public static void PrintTelaReserva(CadastrarNova reserva)
@@ -212,7 +265,8 @@ namespace HotelManagement
         public static void PrintTelaConsultarReserva(string formatoBusca)
         {
             string identificadorPesquisa;
-            string reservaId="";
+            string reservaId = "";
+            int iterador = 0;
             Console.Clear();
             Console.WriteLine("----------- HOTEL BONSOIR - MANAGEMENT -----------");
             Console.WriteLine();
@@ -226,6 +280,7 @@ namespace HotelManagement
                     if (r.CPF == identificadorPesquisa)
                     {
                         reservaId = r.ReservaId;
+                        iterador += 1;
                         Console.WriteLine("------------------------------------------------");
                         Console.WriteLine($"Reserva ID: {r.ReservaId}");
                         Console.WriteLine($"CPF Cliente: {r.CPF}");
@@ -239,17 +294,25 @@ namespace HotelManagement
             {
                 Console.Write("Digite o ID da reserva: ");
                 identificadorPesquisa = Console.ReadLine();
-                var reserva = ServicoReserva.BuscarReserva(identificadorPesquisa);
-                reservaId = reserva.ReservaId;
-                Console.WriteLine("------------------------------------------------");
-                Console.WriteLine($"CPF Cliente: {reserva.CPF}");
-                Console.WriteLine($"Data de CheckIn: {reserva.CheckIn}");
-                Console.WriteLine($"Data de CheckOut: {reserva.CheckOut}");
-                Console.WriteLine($"Quarto: {reserva.QuartoId}");
-                Console.WriteLine($"Valores Diarias: R${reserva.ValorDiarias}");
-                Console.WriteLine($"Valores Taxas: R${reserva.TaxasConsumo}");
-                Console.WriteLine($"Valor Final: R${reserva.ValorFinal}");
-                Console.WriteLine();
+                ServicoReserva.BuscarReservas().ForEach(r =>
+                {
+                    if (r.ReservaId == identificadorPesquisa)
+                    {
+                        reservaId = r.ReservaId;
+                        iterador += 1;
+                        Console.WriteLine("------------------------------------------------");
+                        Console.WriteLine($"Reserva ID: {r.ReservaId}");
+                        Console.WriteLine($"CPF Cliente: {r.CPF}");
+                        Console.WriteLine($"Data de CheckIn: {r.CheckIn}");
+                        Console.WriteLine($"Data de CheckOut: {r.CheckOut}");
+                        Console.WriteLine();
+                    }
+                });
+            }
+            if (iterador > 1)
+            {
+                Console.Write("Digite o ID da reserva a Ser Alterada: ");
+                reservaId = Console.ReadLine();
             }
             Console.WriteLine("------------------------------------------------");
             if (reservaId != "")
@@ -262,6 +325,10 @@ namespace HotelManagement
 
         public static void PrintTelaOperacoesReservas(string reservaId)
         {
+            Console.Clear();
+            Console.WriteLine("----------- HOTEL BONSOIR - MANAGEMENT -----------");
+            Console.WriteLine();
+            Console.WriteLine($"Reserva: {reservaId}");
             Console.WriteLine("Selecione a Operação Desejada:");
             Console.WriteLine("1 - Realizar CheckIn");
             Console.WriteLine("2 - Realizar CheckOut");
@@ -272,19 +339,43 @@ namespace HotelManagement
             {
                 case "1":
                     ServicoReserva.RealizarCheckIn(reservaId);
+                    PrintTelaUnicaReserva(reservaId);
                     return;
                 case "2":
                     ServicoReserva.RealizarCheckOut(reservaId);
+                    PrintTelaUnicaReserva(reservaId);
                     return;
                 case "3":
                     Console.Write("Digite Valor da taxa: R$");
-                    ServicoReserva.InserirTaxa(double.Parse(Console.ReadLine()),reservaId);
+                    ServicoReserva.InserirTaxa(double.Parse(Console.ReadLine()), reservaId);
                     return;
                 case "4":
                     return;
                 default:
                     return;
             }
+        }
+
+        public static void PrintTelaUnicaReserva(string reservaId)
+        {
+            var reserva = ServicoReserva.BuscarReserva(reservaId);
+            Console.WriteLine($"Cliente CPF: {reserva.CPF}");
+            Console.WriteLine($"Quarto: {reserva.QuartoId}");
+            Console.WriteLine($"CheckIn: {reserva.CheckIn} - {reserva.CheckInStatus.ToUpper()}");
+            Console.WriteLine($"CheckOut: {reserva.CheckOut} - {reserva.CheckOutStatus.ToUpper()}");
+            Console.WriteLine($"Valor Total: {reserva.ValorFinal}");
+        }
+
+
+        public static void PrintTelaUnicoCliente(string cpf)
+        {
+            var cliente = ServicoCliente.ObterPorCPF(cpf);
+
+            Console.WriteLine($"Nome Completo: {cliente.NomeCompleto}");
+            Console.WriteLine($"Idade: {ServicoCliente.Idade(cliente.DataNascimento)}");
+            Console.WriteLine($"Telefone: {cliente.Telefone}");
+            Console.WriteLine($"Email: {cliente.Email}");
+
         }
     }
 }
