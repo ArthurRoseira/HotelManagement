@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Text;
 using HotelManagement.Servicos.ClienteService;
 using HotelManagement.Servicos.ReservaService;
@@ -29,7 +30,17 @@ namespace HotelManagement
             switch (Console.ReadLine())
             {
                 case "1":
-                    PrintTelaNovaReserva();
+                    var operacaoStatus = PrintTelaNovaReserva();
+                    if(operacaoStatus == true)
+                    {
+                        Console.WriteLine("Operação Bem Sucedida, Presione Enter para Continuar.");
+                        Console.ReadLine();
+                    }
+                    else
+                    {
+                        Console.WriteLine("Operação Cancelada, Presione Enter para Continuar.");
+                        Console.ReadLine();
+                    }
                     return true;
                 case "2":
                     PrintTelaConsultarReservas();
@@ -57,6 +68,7 @@ namespace HotelManagement
                 Console.WriteLine("----------- HOTEL BONSOIR - MANAGEMENT -----------");
                 Console.WriteLine();
                 Console.Write("Digite Um CPF: ");
+
                 var cpf = Console.ReadLine();
                 if (Dados.Data.ListaClientes.Find(c => c.CPF == cpf) != null)
                 {
@@ -91,7 +103,6 @@ namespace HotelManagement
             {
                 case "1":
                     PrintTelaConsultarReserva("CPF");
-
                     return;
                 case "2":
                     PrintTelaConsultarReserva("ID");
@@ -105,7 +116,7 @@ namespace HotelManagement
 
 
 
-        public static void PrintTelaNovaReserva(string message = "")
+        public static bool PrintTelaNovaReserva(string message = "")
         {
             try
             {
@@ -121,74 +132,102 @@ namespace HotelManagement
                 Console.WriteLine();
                 Console.WriteLine("Realizar Nova Reserva - Selecionar Cliente:");
                 Console.WriteLine("Insira um CPF Válido:");
-                string cpf = Console.ReadLine();
-                cliente = ServicoCliente.ObterPorCPF(cpf);
-                if (cliente.CPF != null)
+                string cpf = "";
+                var cpfCheck = false;
+                while (!cpfCheck)
                 {
+                    cpf = Console.ReadLine();
+                    cpfCheck = ServicoReserva.VerificarCpf(cpf);
+                    if (cpfCheck == false)
+                    {
+                        Console.WriteLine();
+                        Console.WriteLine("CPF Inválido:");
+                        Console.WriteLine();
+                        Console.WriteLine("Deseja Cancelar Operação? (S/N)");
+                        if (char.Parse(Console.ReadLine()) == 's')
+                        {
+                            return false;
+                        }
+                    }
+                    cliente = ServicoCliente.ObterPorCPF(cpf);
+                    if (cliente.CPF != null)
+                    {
+                        Console.Clear();
+                        Console.WriteLine("----------- HOTEL BONSOIR - MANAGEMENT -----------");
+                        Console.WriteLine();
+                        Console.WriteLine("Cliente Ja Cadastrado:");
+                        PrintTelaUnicoCliente(cliente.CPF);
+                        Console.WriteLine();
+                        Console.WriteLine("Pressione Enter Para Continuar");
+                        Console.ReadLine();
+                    }
+                    else
+                    {
+                        bool cadastroStatus = false;
+                        while (!cadastroStatus)
+                        {
+                            Console.WriteLine("Redirecionando Para Novo Cadastro");
+                            System.Threading.Thread.Sleep(2000);
+                            cadastroStatus = PrintTelaCadastroCliente(cpf);
+                        }
+
+                    }
                     Console.Clear();
                     Console.WriteLine("----------- HOTEL BONSOIR - MANAGEMENT -----------");
                     Console.WriteLine();
-                    Console.WriteLine("Cliente Ja Cadastrado:");
-                    PrintTelaUnicoCliente(cliente.CPF);
+                    Console.WriteLine("Realizar Nova Reserva - Selecionar Quarto:");
+                    var novaReserva = new CadastrarNova();
+                    novaReserva.CPF = cpf;
+                    Console.WriteLine("Selecione Um quarto Tipo de Quarto: (1 - Casal/2 - Simples/3 - Duplo)");
+                    PrintTelaQuartos("Livre", int.Parse(Console.ReadLine()));
+                    Console.WriteLine("----------------------------------");
+                    Console.WriteLine();
+                    Console.WriteLine("Digite o Número do Quarto Desejado: ");
+                    novaReserva.QuartoId = int.Parse(Console.ReadLine());
+                    Console.Clear();
+                    Console.WriteLine("----------- HOTEL BONSOIR - MANAGEMENT -----------");
+                    Console.WriteLine();
+                    Console.WriteLine("Data de CheckIn (dd/MM/yyyy): ");
+                    novaReserva.CheckIn = DateTime.Parse(Console.ReadLine());
+                    Console.WriteLine("Data de CheckOut (dd/MM/yyyy): ");
+                    novaReserva.CheckOut = DateTime.Parse(Console.ReadLine());
+                    Console.WriteLine("Digite o Numero de Hospedes: ");
+                    int numHospedes = int.Parse(Console.ReadLine());
+                    List<Hospede> listaAux = new List<Hospede>();
+                    for (int i = 0; i < numHospedes; i++)
+                    {
+                        var hospede = new Hospede();
+                        Console.WriteLine($"Digite o Numero do CPF do Hospede {i}: ");
+                        hospede.CPF = Console.ReadLine();
+                        listaAux.Add(hospede);
+                    }
+                    novaReserva.Hospedes = listaAux;
                     Console.WriteLine();
                     Console.WriteLine("Pressione Enter Para Continuar");
+                    ServicoReserva.CadastrarNovaReserva(novaReserva);
+                    Console.Clear();
+                    Console.WriteLine("----------- HOTEL BONSOIR - MANAGEMENT -----------");
+                    Console.WriteLine();
+                    PrintTelaReserva(novaReserva);
+                    Console.WriteLine("Pressione Enter Para Continuar");
                     Console.ReadLine();
+                    return true;
+                }
+            }
+            catch (ReservaExceptions e)
+            {
+                Console.WriteLine();
+                Console.WriteLine("Deseja Cancelar Operação? (S/N)");
+                if (char.Parse(Console.ReadLine()) == 's')
+                {
+                    return false;
                 }
                 else
                 {
-                    bool cadastroStatus = false;
-                    while (!cadastroStatus)
-                    {
-                        Console.WriteLine("Redirecionando Para Novo Cadastro");
-                        System.Threading.Thread.Sleep(2000);
-                        cadastroStatus = PrintTelaCadastroCliente(cpf);
-                    }
-
+                    PrintTelaNovaReserva(e.Message);
                 }
-                Console.Clear();
-                Console.WriteLine("----------- HOTEL BONSOIR - MANAGEMENT -----------");
-                Console.WriteLine();
-                Console.WriteLine("Realizar Nova Reserva - Selecionar Quarto:");
-                var novaReserva = new CadastrarNova();
-                novaReserva.CPF = cpf;
-                Console.WriteLine("Selecione Um quarto Tipo de Quarto: (1 - Casal/2 - Simples/3 - Duplo)");
-                PrintTelaQuartos("Livre", int.Parse(Console.ReadLine()));
-                Console.WriteLine("----------------------------------");
-                Console.WriteLine();
-                Console.WriteLine("Digite o Número do Quarto Desejado: ");
-                novaReserva.QuartoId = int.Parse(Console.ReadLine());
-                Console.Clear();
-                Console.WriteLine("----------- HOTEL BONSOIR - MANAGEMENT -----------");
-                Console.WriteLine();
-                Console.WriteLine("Data de CheckIn (dd/MM/yyyy): ");
-                novaReserva.CheckIn = DateTime.Parse(Console.ReadLine());
-                Console.WriteLine("Data de CheckOut (dd/MM/yyyy): ");
-                novaReserva.CheckOut = DateTime.Parse(Console.ReadLine());
-                Console.WriteLine("Digite o Numero de Hospedes: ");
-                int numHospedes = int.Parse(Console.ReadLine());
-                List<Hospede> listaAux = new List<Hospede>();
-                for (int i = 0; i < numHospedes; i++)
-                {
-                    var hospede = new Hospede();
-                    Console.WriteLine($"Digite o Numero do CPF do Hospede {i}: ");
-                    hospede.CPF = Console.ReadLine();
-                    listaAux.Add(hospede);
-                }
-                novaReserva.Hospedes = listaAux;
-                Console.WriteLine();
-                Console.WriteLine("Pressione Enter Para Continuar");
-                ServicoReserva.CadastrarNovaReserva(novaReserva);
-                Console.Clear();
-                Console.WriteLine("----------- HOTEL BONSOIR - MANAGEMENT -----------");
-                Console.WriteLine();
-                PrintTelaReserva(novaReserva);
-                Console.WriteLine("Pressione Enter Para Continuar");
-                Console.ReadLine();
             }
-            catch(ReservaExceptions e)
-            {
-                PrintTelaNovaReserva(e.Message);
-            }
+            return true;
         }
 
         public static bool PrintTelaCadastroCliente(string cpf)
@@ -311,14 +350,20 @@ namespace HotelManagement
             }
             if (iterador > 1)
             {
+                Console.WriteLine();
                 Console.Write("Digite o ID da reserva a Ser Alterada: ");
                 reservaId = Console.ReadLine();
+            }else if(iterador == 0)
+            {
+                Console.WriteLine();
+                Console.WriteLine("Nenhuma Reserva Encontrada para este Cliente");
             }
             Console.WriteLine("------------------------------------------------");
             if (reservaId != "")
             {
                 PrintTelaOperacoesReservas(reservaId);
             }
+            
             Console.WriteLine("Pressione Enter Para Retornar");
             Console.ReadLine();
         }
@@ -338,16 +383,39 @@ namespace HotelManagement
             switch (Console.ReadLine())
             {
                 case "1":
-                    ServicoReserva.RealizarCheckIn(reservaId);
-                    PrintTelaUnicaReserva(reservaId);
+                    var statusCheckIn = false;
+                    while (!statusCheckIn)
+                    {
+                        statusCheckIn = ServicoReserva.RealizarCheckIn(reservaId);
+                        PrintTelaUnicaReserva(reservaId);
+                        if (!statusCheckIn)
+                        {
+                            Console.WriteLine("Não foi possivel realizar operação, Reserva Não Encontrada");
+                            Console.WriteLine("Pressione Enter Para Cancelar a Operação");
+                            Console.ReadLine();
+                            statusCheckIn = true;
+                        }
+                    }
                     return;
                 case "2":
-                    ServicoReserva.RealizarCheckOut(reservaId);
-                    PrintTelaUnicaReserva(reservaId);
+                    var statusCheckOut = false;
+                    while (!statusCheckOut)
+                    {
+                        statusCheckOut = ServicoReserva.RealizarCheckOut(reservaId);
+                        PrintTelaUnicaReserva(reservaId);
+                        if (!statusCheckOut)
+                        {
+                            Console.WriteLine("Não foi possivel realizar operação, Reserva Não Encontrada ou sem ChekIn");
+                            Console.WriteLine("Pressione Enter Para Cancelar a Operação");
+                            Console.ReadLine();
+                            statusCheckOut = true;
+                        }
+                    }
                     return;
                 case "3":
                     Console.Write("Digite Valor da taxa: R$");
-                    ServicoReserva.InserirTaxa(double.Parse(Console.ReadLine()), reservaId);
+                    ServicoReserva.InserirTaxa(double.Parse(Console.ReadLine(),CultureInfo.InvariantCulture), reservaId);
+                    PrintTelaUnicaReserva(reservaId);
                     return;
                 case "4":
                     return;
@@ -363,6 +431,12 @@ namespace HotelManagement
             Console.WriteLine($"Quarto: {reserva.QuartoId}");
             Console.WriteLine($"CheckIn: {reserva.CheckIn} - {reserva.CheckInStatus.ToUpper()}");
             Console.WriteLine($"CheckOut: {reserva.CheckOut} - {reserva.CheckOutStatus.ToUpper()}");
+            reserva.Hospedes.ForEach(hospede =>{
+                Console.WriteLine($"Hospede: {hospede.CPF}");
+            });
+            Console.WriteLine($"Hospedes: {reserva.Hospedes}");
+            Console.WriteLine($"Valor Total: {reserva.ValorDiarias}");
+            Console.WriteLine($"Valor Total: {reserva.TaxasConsumo}");
             Console.WriteLine($"Valor Total: {reserva.ValorFinal}");
         }
 

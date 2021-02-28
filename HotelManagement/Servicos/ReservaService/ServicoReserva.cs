@@ -28,7 +28,6 @@ namespace HotelManagement.Servicos.ReservaService
                 TaxasConsumo = 0,
                 ValorFinal = 0
             };
-
             novaReserva.HospedesJSON = JsonSerializer.Serialize(reserva.Hospedes);
             novaReserva.AtualizarValorFinal();
             Dados.Data.ListaReservas.Add(novaReserva);
@@ -40,24 +39,59 @@ namespace HotelManagement.Servicos.ReservaService
             return (checkOut-checkIn).TotalDays * Dados.Data.ListaTipoQuarto.Find(tipo => tipo.TipoId == tipoQuarto).Valor;
         }
 
+        public static bool VerificarCpf(string cpf)
+        {
+            if (cpf.Length < 11)
+            {
+                return false;
+            }
+            else
+            {
+                foreach (char c in cpf)
+                {
+                    if (c < '0' || c > '9')
+                        return false;
+                }
+            }
+            return true;
+        }
 
         public static void InserirTaxa(double taxa, string reservaId)
         {
             Dados.Data.ListaReservas.Where(reserva => reserva.ReservaId == reservaId)
                             .Select(reserva => reserva.TaxasConsumo += taxa).ToList();
+            Dados.Data.ListaReservas.Find(reserva => reserva.ReservaId == reservaId).AtualizarValorFinal();
         }
 
-        public static void RealizarCheckIn(string reservaId)
+        public static bool RealizarCheckIn(string reservaId)
         {
-            Dados.Data.ListaReservas.Where(reserva => reserva.ReservaId == reservaId)
+            var reserva = Dados.Data.ListaReservas.Find(reserva => reserva.ReservaId == reservaId);
+            if (reserva != null)
+            {
+                Dados.Data.ListaReservas.Where(reserva => reserva.ReservaId == reservaId)
                 .Select(reserva => reserva.CheckInStatus = "ok").ToList();
-
+                return true;
+            }
+            else
+            {
+                return false;
+            }
         }
 
-        public static void RealizarCheckOut(string reservaId)
+        public static bool RealizarCheckOut(string reservaId)
         {
-            Dados.Data.ListaReservas.Where(reserva => reserva.ReservaId == reservaId)
+            var reserva = Dados.Data.ListaReservas.Find(reserva => reserva.ReservaId == reservaId);
+            if (reserva.CheckInStatus == "ok" && reserva != null)
+            {
+                Dados.Data.ListaReservas.Where(reserva => reserva.ReservaId == reservaId)
                 .Select(reserva => reserva.CheckOutStatus = "ok").ToList();
+                return true;
+
+            }
+            else
+            {
+                return false;
+            }
 
         }
 
@@ -95,7 +129,7 @@ namespace HotelManagement.Servicos.ReservaService
                 reserva.CheckOut = r.CheckOut;
                 reserva.CheckOutStatus = r.CheckOutStatus;
                 reserva.QuartoId = r.QuartoId;
-                //Hospedes = 
+                reserva.Hospedes = r.DeserializarHospedes(r.HospedesJSON);
                 reserva.ValorDiarias = r.ValorDiarias;
                 reserva.TaxasConsumo = r.TaxasConsumo;
                 reserva.ValorFinal = r.ValorFinal;
