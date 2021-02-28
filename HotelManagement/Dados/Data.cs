@@ -125,6 +125,7 @@ namespace HotelManagement.Dados
                                     CheckOutStatus = values[5],
                                     CPF = values[6],
                                     HospedesJSON = values[7],
+                                    //Hospedes = Reserva.DeserializarHospedes(values[7]),
                                     QuartoId = int.Parse(values[8]),
                                     ValorDiarias = double.Parse(values[9], CultureInfo.InvariantCulture),
                                     TaxasConsumo = double.Parse(values[10], CultureInfo.InvariantCulture),

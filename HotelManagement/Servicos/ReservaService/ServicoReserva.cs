@@ -123,16 +123,19 @@ namespace HotelManagement.Servicos.ReservaService
             var reserva = new ConsultarUma();
             Dados.Data.ListaReservas.ForEach(r =>
             {
-                reserva.CPF = r.CPF;
-                reserva.CheckIn = r.CheckIn;
-                reserva.CheckInStatus = r.CheckInStatus;
-                reserva.CheckOut = r.CheckOut;
-                reserva.CheckOutStatus = r.CheckOutStatus;
-                reserva.QuartoId = r.QuartoId;
-                reserva.Hospedes = r.DeserializarHospedes(r.HospedesJSON);
-                reserva.ValorDiarias = r.ValorDiarias;
-                reserva.TaxasConsumo = r.TaxasConsumo;
-                reserva.ValorFinal = r.ValorFinal;
+                if(r.ReservaId == reservaID)
+                {
+                    reserva.CPF = r.CPF;
+                    reserva.CheckIn = r.CheckIn;
+                    reserva.CheckInStatus = r.CheckInStatus;
+                    reserva.CheckOut = r.CheckOut;
+                    reserva.CheckOutStatus = r.CheckOutStatus;
+                    reserva.QuartoId = r.QuartoId;
+                    reserva.Hospedes = r.DeserializarHospedes(r.HospedesJSON);
+                    reserva.ValorDiarias = r.ValorDiarias;
+                    reserva.TaxasConsumo = r.TaxasConsumo;
+                    reserva.ValorFinal = r.ValorFinal;
+                }
             });
             return reserva;
         }

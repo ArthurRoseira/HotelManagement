@@ -21,7 +21,7 @@ namespace HotelManagement
             Console.WriteLine("MENU PRINCIPAL:");
             Console.WriteLine();
             Console.WriteLine("1 - Iniciar Nova Reserva;");
-            Console.WriteLine("2 - Alterar Dados de Reserva");
+            Console.WriteLine("2 - Administrar Reservas");
             Console.WriteLine("3 - Consultar Clientes;");
             Console.WriteLine("4 - Consultar todas as Reservas;");
             Console.WriteLine("5 - Encerrar");
@@ -374,6 +374,9 @@ namespace HotelManagement
             Console.WriteLine("----------- HOTEL BONSOIR - MANAGEMENT -----------");
             Console.WriteLine();
             Console.WriteLine($"Reserva: {reservaId}");
+            PrintTelaUnicaReserva(reservaId);
+            Console.WriteLine();
+            Console.WriteLine("--------------------------------------------------");
             Console.WriteLine("Selecione a Operação Desejada:");
             Console.WriteLine("1 - Realizar CheckIn");
             Console.WriteLine("2 - Realizar CheckOut");
@@ -434,7 +437,6 @@ namespace HotelManagement
             reserva.Hospedes.ForEach(hospede =>{
                 Console.WriteLine($"Hospede: {hospede.CPF}");
             });
-            Console.WriteLine($"Hospedes: {reserva.Hospedes}");
             Console.WriteLine($"Valor Total: {reserva.ValorDiarias}");
             Console.WriteLine($"Valor Total: {reserva.TaxasConsumo}");
             Console.WriteLine($"Valor Total: {reserva.ValorFinal}");
