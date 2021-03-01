@@ -405,7 +405,6 @@ namespace HotelManagement
                     while (!statusCheckOut)
                     {
                         statusCheckOut = ServicoReserva.RealizarCheckOut(reservaId);
-                        PrintTelaUnicaReserva(reservaId);
                         if (!statusCheckOut)
                         {
                             Console.WriteLine("Não foi possivel realizar operação, Reserva Não Encontrada ou sem ChekIn");
@@ -413,6 +412,8 @@ namespace HotelManagement
                             Console.ReadLine();
                             statusCheckOut = true;
                         }
+                        Console.WriteLine("Valores relacionados à taxas Extras de Diaria foram automaticamente Adicionados ao valor final.");
+                        PrintTelaUnicaReserva(reservaId);
                     }
                     return;
                 case "3":

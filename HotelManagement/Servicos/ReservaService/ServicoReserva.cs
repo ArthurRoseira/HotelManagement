@@ -19,8 +19,8 @@ namespace HotelManagement.Servicos.ReservaService
             var novaReserva = new Reserva()
             {
                 CPF = reserva.CPF,
-                CheckIn = reserva.CheckIn,
-                CheckOut = reserva.CheckOut,
+                CheckIn = reserva.CheckIn.Add(new TimeSpan(18,0,0)),
+                CheckOut = reserva.CheckOut.Add(new TimeSpan(12, 0, 0)),
                 DataCriacao = DateTime.Now,
                 QuartoId = reserva.QuartoId,
                 ReservaId = Nanoid.Nanoid.Generate(),
@@ -36,7 +36,7 @@ namespace HotelManagement.Servicos.ReservaService
         public static double ValorDiarias(int tipoQuarto ,DateTime checkIn, DateTime checkOut)
         {
 
-            return (checkOut-checkIn).TotalDays * Dados.Data.ListaTipoQuarto.Find(tipo => tipo.TipoId == tipoQuarto).Valor;
+            return Math.Ceiling((checkOut-checkIn).TotalDays) * Dados.Data.ListaTipoQuarto.Find(tipo => tipo.TipoId == tipoQuarto).Valor;
         }
 
         public static bool VerificarCpf(string cpf)
@@ -83,14 +83,31 @@ namespace HotelManagement.Servicos.ReservaService
             var reserva = Dados.Data.ListaReservas.Find(reserva => reserva.ReservaId == reservaId);
             if (reserva.CheckInStatus == "ok" && reserva != null)
             {
-                Dados.Data.ListaReservas.Where(reserva => reserva.ReservaId == reservaId)
-                .Select(reserva => reserva.CheckOutStatus = "ok").ToList();
+
+                Dados.Data.ListaReservas.ForEach(reserva =>
+                {
+                    if (reserva.ReservaId == reservaId)
+                    {
+                        var tipoQuarto = Dados.Data.ListaQuartos.Find(quarto => quarto.QuartoId == reserva.QuartoId).TipoId;
+                        reserva.CheckOutStatus = "ok";
+                        if (reserva.CheckOut < DateTime.Now)
+                        {
+                            reserva.TaxasConsumo += Math.Round(Dados.Data.ListaTipoQuarto.Find(tipo => tipo.TipoId == tipoQuarto).Valor 
+                            * (Math.Ceiling((DateTime.Now - reserva.CheckOut).TotalDays)),2);
+                        }
+                        reserva.ValorDiarias = ServicoReserva.ValorDiarias(tipoQuarto,reserva.CheckIn,reserva.CheckOut);
+                    }
+                });
+
+                //Dados.Data.ListaReservas.Where(reserva => reserva.ReservaId == reservaId)
+                //.Select(reserva => reserva.CheckOutStatus = "ok").ToList();
+                reserva.AtualizarValorFinal();
                 return true;
 
             }
             else
             {
-                return false;
+                    return false;
             }
 
         }
